@@ -1,14 +1,11 @@
 import os
+import re
 import json
 
 # === SETTINGS ===
 MODID = "your-modid"
-BLOCKS = [
-    "iron_pipe",
-    "copper_pipe",
-    "lead_block",
-]  # Add all blocks you want to generate loot/minable tags for
-OUTPUT_ASSETS = r"path\to\src\main\resources"
+JAVA_SOURCE = r"path\to\src\main\java\domain\yourname\mod"
+OUTPUT_ASSETS = r"path\to\src\main\resources\assets"
 
 # === TEMPLATES ===
 LOOT_TABLE_TEMPLATE = lambda name: {
@@ -21,17 +18,49 @@ LOOT_TABLE_TEMPLATE = lambda name: {
     ],
 }
 
+# === FUNCTIONS ===
 def write_json(path, data):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
-# === GENERATE LOOT AND TAGS ===
-for name in BLOCKS:
-    print(f"\nProcessing block: {name}")
+def find_registry_names(java_file):
+    """Extract registered block names from a Java file."""
+    pattern = r'register\("([a-z0-9_]+)"'
+    with open(java_file, "r", encoding="utf-8") as f:
+        content = f.read()
+    return re.findall(pattern, content)
 
-    # Loot table
+# === SCAN JAVA FILES ===
+all_blocks = set()
+for root, _, files in os.walk(JAVA_SOURCE):
+    for file in files:
+        if file.endswith(".java"):
+            path = os.path.join(root, file)
+            names = find_registry_names(path)
+            all_blocks.update(names)
+
+print(f"Found {len(all_blocks)} blocks in Java source.")
+
+# === GENERATE LOOT AND TAGS ===
+for name in all_blocks:
     loot_path = os.path.join(OUTPUT_ASSETS, f"data/{MODID}/loot_tables/blocks/{name}.json")
+    unbreakable_path = os.path.join(OUTPUT_ASSETS, f"data/{MODID}/tags/blocks/unbreakable.json")
+
+    # Skip if loot table already exists
+    if os.path.exists(loot_path):
+        print(f"[SKIP] {name} already has a loot table.")
+        continue
+
+    # Skip if marked unbreakable
+    if os.path.exists(unbreakable_path):
+        with open(unbreakable_path, "r", encoding="utf-8") as f:
+            unbreakable_json = json.load(f)
+        if f"{MODID}:{name}" in unbreakable_json.get("values", []):
+            print(f"[SKIP] {name} is unbreakable.")
+            continue
+
+    print(f"\nProcessing block: {name}")
     write_json(loot_path, LOOT_TABLE_TEMPLATE(name))
     print(f"  -> Loot table created at {loot_path}")
 
@@ -46,6 +75,7 @@ for name in BLOCKS:
 
     # Mineable tag
     tag_folder = os.path.join(OUTPUT_ASSETS, f"data/{MODID}/tags/blocks")
+    os.makedirs(tag_folder, exist_ok=True)
     mineable_path = os.path.join(tag_folder, f"mineable_{tool}.json")
     if os.path.exists(mineable_path):
         with open(mineable_path, "r", encoding="utf-8") as f:
@@ -70,4 +100,4 @@ for name in BLOCKS:
         write_json(tier_path, tier_json)
         print(f"  -> Tier tag updated: needs_{tier}_tool.json")
 
-print("\nAll done! Loot tables and minable tags generated.")
+print("\nAll done! Loot tables and minable tags generated for new breakable blocks.")
