@@ -32,18 +32,24 @@ def find_registry_names(java_file):
     return re.findall(pattern, content)
 
 # === SCAN JAVA FILES ===
-all_blocks = set()
+all_entries = set()
 for root, _, files in os.walk(JAVA_SOURCE):
     for file in files:
         if file.endswith(".java"):
             path = os.path.join(root, file)
             names = find_registry_names(path)
-            all_blocks.update(names)
+            all_entries.update(names)
 
-print(f"Found {len(all_blocks)} blocks in Java source.")
+print(f"Found {len(all_entries)} entries in Java source.")
 
-# === GENERATE LOOT AND TAGS ===
-for name in all_blocks:
+# === GENERATE LOOT AND TAGS (BLOCKS ONLY) ===
+for name in all_entries:
+    # Check if block texture exists, skip items
+    block_texture = os.path.join(OUTPUT_ASSETS, f"textures/block/{name}.png")
+    if not os.path.exists(block_texture):
+        print(f"[SKIP] {name} is treated as an item or has no block texture.")
+        continue
+
     loot_path = os.path.join(OUTPUT_ASSETS, f"data/{MODID}/loot_tables/blocks/{name}.json")
     unbreakable_path = os.path.join(OUTPUT_ASSETS, f"data/{MODID}/tags/blocks/unbreakable.json")
 
@@ -100,4 +106,4 @@ for name in all_blocks:
         write_json(tier_path, tier_json)
         print(f"  -> Tier tag updated: needs_{tier}_tool.json")
 
-print("\nAll done! Loot tables and minable tags generated for new breakable blocks.")
+print("\nAll done! Loot tables and minable tags generated for blocks only.")
