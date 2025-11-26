@@ -8,7 +8,7 @@ This folder contains **official Python installers** for running the Better Datag
 
 * `python-3.x.x-installer.exe` — Official Python installer for Windows
 * `python-3.x.x-macos.pkg` — Official Python installer for macOS
-* `python-3.x.x.tar.gz` — Official Python source for Linux/other platforms
+* `python-3.x.x.tgz` — Official Python source for Linux/other platforms
 
 > **Note:** These are the official Python distributions. They are **not modified** by us in any way.
 
