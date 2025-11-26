@@ -4,7 +4,7 @@ Copyright (c) 2025 CreateModFan154
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this Python script (the "Software") to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, subject to the
+and/or distribute the software, subject to the
 following terms:
 
 1. The Software (this Python script) must always remain under these terms. 
@@ -14,6 +14,9 @@ following terms:
    Minecraft block/item models, blockstates, and item JSONs) are explicitly
    waived by the copyright holder. The user of the Software may use, modify,
    and license the generated files under any terms they choose.
+
+3. The Software (this Python script) must not be sold for any amount of money. This is **FREE** software, if you paid any amount for this software you were scammed
+
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
